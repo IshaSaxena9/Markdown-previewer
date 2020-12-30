@@ -23,4 +23,21 @@
   min-height: 400px;
   margin: 10px auto;
   text-align: left;
+  padding: 5px 10px;
+}
+
+#code-block {
+  background-color: rgba(34, 36, 37, 0.2);
+  padding: 2px 4px;
+}
+
+#preview pre {
+  background-color: rgba(34, 36, 37, 0.2);
+  padding: 2px 4px;
+  line-height: 23px;
+}
+
+#preview blockquote {
+  padding: 0 6px;
+  border-left: 2px solid rgba(34, 36, 37, 0.8);
 }
