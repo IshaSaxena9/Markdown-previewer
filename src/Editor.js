@@ -22,10 +22,14 @@ class Editor extends React.Component {
   render() {
     return (
       <div>
+        <div id="editor-header">Editor</div>
         <textarea id="editor" rows="20" cols="80"
           value={this.state.input}
           onChange={this.handleChange} />
-        <div id="preview">{this.state.html}</div>
+        <div id="preview-wrapper">
+          <div id="previewer-header">Previewer</div>
+          <div id="preview">{this.state.html}</div>
+        </div>
       </div>
     );
   };
