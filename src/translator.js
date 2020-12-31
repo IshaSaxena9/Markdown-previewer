@@ -3,15 +3,23 @@ const markdownToHTML = markdownString => {
   let hashCount = 0, starCount = 0, _count = 0, strikeCount = 0, tickCount = 0;
   let setBold = false, setItalic = false, setStrike = false, openCodeBlock = false, openPre = false;
   let openAnchorTag = false, linkText = "", openLink = false, linkHref = "", openBlockQuote = false;
+  let openList = false, tabCount = 0;
 
   for (let i = 0; i < newString.length; i++) {
     let char = newString[i];
     let nextChar = newString[i + 1];
+    let prevChar = newString[i - 1];
 
     if (i === newString.length - 1) {
       if (hashCount) {
         newString.splice(i + 1, 0, `</h${hashCount}>`);
         hashCount = 0;
+      } else if (openBlockQuote) {
+        newString.splice(i + 1, 0, `</blockquote>`);
+        openBlockQuote = false;
+      } else if (openList) {
+        newString.splice(i + 1, 0, `</li></ul>`);
+        openList = false;
       };
     };
     if (char === "\n") {
@@ -20,6 +28,14 @@ const markdownToHTML = markdownString => {
         hashCount = 0;
       } else if (openBlockQuote && nextChar !== ">") {
         newString.splice(i, 1, `</blockquote>`);
+        openBlockQuote = false;
+      } else if (openList) {
+        if (nextChar === "-" || nextChar === "\t") {
+          newString.splice(i, 1, `</li>`);
+        } else {
+          newString.splice(i, 1, `</li></ul>`);
+          openList = false;
+        };
       } else {
         newString.splice(i, 1, `<br />`);
       };
@@ -30,7 +46,7 @@ const markdownToHTML = markdownString => {
     if (char === ">") {
       if (openCodeBlock) {
         newString.splice(i, 1, `&gt;`);
-      } else if(openBlockQuote) {
+      } else if (openBlockQuote) {
         newString.splice(i, 1);
       } else {
         newString.splice(i, 1, `<blockquote>`);
@@ -99,6 +115,33 @@ const markdownToHTML = markdownString => {
         newString.splice(i - 1, strikeCount, `<del>`);
         setStrike = true;
         i = i - (strikeCount - 1);
+      };
+    };
+
+    if (char === "-" && nextChar === " ") {
+      if (prevChar === "\t") {
+        let newTabCount = 0;
+        let j = i - 1;
+        while (j >= 0 && newString[j] === "\t") {
+          newTabCount++;
+          j--;
+        };
+        if (newTabCount < tabCount) {
+          newString.splice(i - newTabCount, newTabCount + 1, `</ul><li>`);
+        } else if (newTabCount > tabCount) {
+          newString.splice(i - newTabCount, newTabCount + 1, `<ul><li>`);
+        } else {
+          newString.splice(i-tabCount, tabCount+1, `<li>`);
+        };
+        tabCount = newTabCount;
+      } else if (tabCount) {
+        newString.splice(i, 1, `</ul><li>`);
+        tabCount = 0;
+      } else if (openList) {
+        newString.splice(i, 1, `<li>`);
+      } else {
+        newString.splice(i, 1, `<ul><li>`);
+        openList = true;
       };
     };
 
